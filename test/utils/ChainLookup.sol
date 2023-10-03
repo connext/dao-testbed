@@ -124,4 +124,22 @@ library ChainLookup {
 
     require(false, "!network name for chain");
   }
+
+  function getMainnetChainIds() public pure returns (uint256[] memory _mainnets) {
+    _mainnets = new uint256[](6);
+    _mainnets[0] = 1;
+    _mainnets[1] = 10;
+    _mainnets[2] = 56;
+    _mainnets[3] = 100;
+    _mainnets[4] = 137;
+    _mainnets[5] = 42161;
+  }
+
+  function getTestnetChainIds() public pure returns (uint256[] memory _mainnets) {
+    _mainnets = new uint256[](4);
+    _mainnets[0] = 5;
+    _mainnets[1] = 420;
+    _mainnets[2] = 80001;
+    _mainnets[3] = 421613;
+  }
 }
