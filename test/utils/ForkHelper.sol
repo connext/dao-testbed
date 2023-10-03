@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Strings} from "@openzeppelin/utils/Strings.sol";
 
 import {ForgeHelper} from "./ForgeHelper.sol";
 import {ChainLookup} from "./ChainLookup.sol";

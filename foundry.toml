@@ -1,5 +1,12 @@
 # See more config options https://github.com/gakonst/foundry/tree/master/config
 
+[profile.default]
+remappings = [
+    "@forge-std/=lib/forge-std/src/",
+    "@openzeppelin/=lib/openzeppelin-contracts/contracts/",
+    "v2-palm/=v2-palm/contracts/"
+]
+
 [profile.ci.fuzz]
 runs = 10_000
 
