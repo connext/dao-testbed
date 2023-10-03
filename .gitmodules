@@ -4,3 +4,6 @@
 [submodule "lib/interfaces"]
 	path = lib/interfaces
 	url = https://github.com/connext/interfaces
+[submodule "lib/v2-palm"]
+	path = lib/v2-palm
+	url = https://github.com/ArrakisFinance/v2-palm
