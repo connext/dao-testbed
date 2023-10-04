@@ -62,11 +62,11 @@ contract ArrakisProposal is ForgeHelper {
         // - create an xcall to arbitrum that will transfer + approve NEXT to arbitrum
         // - create an xcall to arbitrum that will call `increaseLiquidity` on vault
 
-        // These two should be proposed
+        // These two should be executed via `execTransaction` on mainnet multisig
 
-        // `execTransaction` on mainnet multisig
+        // Process arbitrum message for approval
 
-        // Process arbitrum message
+        // Process arbitrum message for `increaseLiquidity`
 
         // Assert final balance changes
     }
