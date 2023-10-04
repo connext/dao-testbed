@@ -84,7 +84,10 @@ contract ArrakisProposal is ForgeHelper {
     //    - arbitrum increaseLiquidity on terms (module is caller)
     uint256 public NUMBER_TRANSACTIONS = 6;
 
-    uint256 public LIQUIDITY_AMOUNT = 10000 ether; // used in transactions
+    // Amount to deposit into PALM mainnet vault
+    uint256 public LIQUIDITY_AMOUNT_MAINNET = 14_400_000 ether; // used in transactions
+    // Amount to deposit into PALM arbitrum vault
+    uint256 public LIQUIDITY_AMOUNT_ARBITRUM = 5_770_000 ether; // used in transactions
 
     // ================== Setup ==================
 
@@ -199,7 +202,7 @@ contract ArrakisProposal is ForgeHelper {
             data: abi.encodeWithSelector(
                 IERC20.approve.selector,
                 ARRAKIS_PALM_TERMS,
-                LIQUIDITY_AMOUNT
+                LIQUIDITY_AMOUNT_ARBITRUM
             ),
             operation: Operation.Call
         });
@@ -210,7 +213,7 @@ contract ArrakisProposal is ForgeHelper {
             value: 0,
             data: abi.encodeWithSelector(
                 IPALMTerms.increaseLiquidity.selector,
-                IPALMTerms.IncreaseBalance(ARRAKIS_ARBITRUM, LIQUIDITY_AMOUNT, 0)
+                IPALMTerms.IncreaseBalance(ARRAKIS_ARBITRUM, LIQUIDITY_AMOUNT_ARBITRUM, 0)
             ),
             operation: Operation.Call
         });
@@ -308,11 +311,11 @@ contract ArrakisProposal is ForgeHelper {
         address asset = AddressLookup.getNEXTAddress(42161);
         vm.startPrank(caller);
         // Mint on NEXT to caller
-        IXERC20(asset).mint(to, LIQUIDITY_AMOUNT);
+        IXERC20(asset).mint(to, LIQUIDITY_AMOUNT_ARBITRUM);
         // Call xreceive
         IXReceiver(to).xReceive(
             bytes32("transfer"),
-            LIQUIDITY_AMOUNT,
+            LIQUIDITY_AMOUNT_ARBITRUM,
             asset,
             AddressLookup.getConnextDao(1),
             ChainLookup.getDomainId(1),
@@ -324,9 +327,10 @@ contract ArrakisProposal is ForgeHelper {
         for (uint256 i; i < FORK_HELPER.utils_getNetworksCount(); i++) {
             uint256 chainId = FORK_HELPER.NETWORK_IDS(i);
             address vault = chainId == 1 ? ARRAKIS_MAINNET : ARRAKIS_ARBITRUM;
+            uint256 liquidity = chainId == 1 ? LIQUIDITY_AMOUNT_MAINNET : LIQUIDITY_AMOUNT_ARBITRUM;
             vm.selectFork(FORK_HELPER.forkIdsByChain(chainId));
             uint256 balance = IERC20(AddressLookup.getNEXTAddress(chainId)).balanceOf(vault);
-            assertEq(balance, LIQUIDITY_AMOUNT, "!balance");
+            assertEq(balance, liquidity, "!balance");
         }
     }
 
