@@ -4,7 +4,6 @@
 remappings = [
     "@forge-std/=lib/forge-std/src/",
     "@openzeppelin/=lib/openzeppelin-contracts/contracts/",
-    "v2-palm/=lib/v2-palm/contracts/",
     "safe-contracts/=lib/safe-contracts/contracts/",
     "@connext/interfaces/=lib/interfaces/"
 ]

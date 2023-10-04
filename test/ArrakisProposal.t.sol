@@ -5,11 +5,12 @@ import {Strings} from "@openzeppelin/utils/Strings.sol";
 import {Ownable} from "@openzeppelin/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/token/ERC20/IERC20.sol";
 
-import {IPALMTerms} from "v2-palm/interfaces/IPALMTerms.sol";
-
 import {MultiSendCallOnly} from "safe-contracts/libraries/MultiSendCallOnly.sol";
 
 import {IXReceiver} from "@connext/interfaces/core/IXReceiver.sol";
+
+import {IPALMTerms} from "./interfaces/IPALMTerms.sol";
+import {IXERC20} from "./interfaces/IXERC20.sol";
 
 import {ForgeHelper} from "./utils/ForgeHelper.sol";
 import {ForkHelper} from "./utils/ForkHelper.sol";
@@ -81,7 +82,7 @@ contract ArrakisProposal is ForgeHelper {
     // 6. an xcall with multicall calldata that will:
     //    - arbitrum approval of NEXT to terms (module approves)
     //    - arbitrum increaseLiquidity on terms (module is caller)
-    uint256 public NUMBER_TRANSACTIONS = 7;
+    uint256 public NUMBER_TRANSACTIONS = 6;
 
     uint256 public LIQUIDITY_AMOUNT = 10000 ether; // used in transactions
 
@@ -187,7 +188,7 @@ contract ArrakisProposal is ForgeHelper {
         _to = json.readAddress(jsonPath);
     }
 
-    function utils_getEncodedXCallData() public returns (bytes memory _calldata) {
+    function utils_getEncodedXCallData() public view returns (bytes memory _calldata) {
         // Get multisend transactions
         Transaction[] memory transactions = new Transaction[](2);
 
@@ -237,16 +238,15 @@ contract ArrakisProposal is ForgeHelper {
                 MultiSendCallOnly.multiSend.selector,
                 _transactions
             ),
-            operation: Operation.Call
+            operation: Operation.DelegateCall
         });
 
         // return this as the encodePacked calldata
-        _calldata = abi.encodePacked(
-            multisend.operation,
+        _calldata = abi.encode(
             multisend.to,
             multisend.value,
-            multisend.data.length,
-            multisend.data
+            multisend.data,
+            multisend.operation
         );
     }
 
@@ -276,57 +276,71 @@ contract ArrakisProposal is ForgeHelper {
         caller = AddressLookup.getConnext(42161);
         vm.makePersistent(caller);
 
-        (address _to, uint256 _value, bytes memory _data, Operation _operation) = abi.decode(
-            utils_getXCallData(5),
-            (address, uint256, bytes, Operation)
-        );
-        console.log("receiver", utils_getXCallTo(5));
-        console.log("to", _to);
-        console.log("value", _value);
-        console.log("operation", uint256(_operation));
-        console.log("data");
-        console.logBytes(_data);
+        // NOTE: useful logs for tenderly sims and explorer debugging
+        // (address _to, uint256 _value, bytes memory _data, Operation _operation) = abi.decode(
+        //     utils_getXCallData(5),
+        //     (address, uint256, bytes, Operation)
+        // );
+        // console.log("generated xcall data");
+        // console.log("receiver", utils_getXCallTo(5));
+        // console.log("to", _to);
+        // console.log("value", _value);
+        // console.log("operation", uint256(_operation));
+        // console.log("data");
+        // console.logBytes(_data);
 
-        console.log("calldata");
-        console.logBytes(abi.encodeWithSelector(IXReceiver.xReceive.selector, bytes32("transfer"),
-            LIQUIDITY_AMOUNT,
-            AddressLookup.getNEXTAddress(42161),
-            AddressLookup.getConnextDao(1),
-            ChainLookup.getDomainId(1),
-            utils_getXCallData(5))
-        );
+        // console.log("calldata");
+        // console.logBytes(
+        //     abi.encodeWithSelector(
+        //         IXReceiver.xReceive.selector, 
+        //         bytes32("transfer"),
+        //         LIQUIDITY_AMOUNT,
+        //         AddressLookup.getNEXTAddress(42161),
+        //         AddressLookup.getConnextDao(1),
+        //         ChainLookup.getDomainId(1),
+        //         utils_getXCallData(5)
+        //     )
+        // );
 
-        // Process arbitrum xcall for `approval`
-        vm.startPrank(address(0xEE9deC2712cCE65174B561151701Bf54b99C24C8));
-        IXReceiver(utils_getXCallTo(5)).xReceive(
+        // Process arbitrum xcall for `approval` by transferring to `to`
+        // and calling xreceive
+        address to = utils_getXCallTo(5);
+        address asset = AddressLookup.getNEXTAddress(42161);
+        vm.startPrank(caller);
+        // Mint on NEXT to caller
+        IXERC20(asset).mint(to, LIQUIDITY_AMOUNT);
+        // Call xreceive
+        IXReceiver(to).xReceive(
             bytes32("transfer"),
             LIQUIDITY_AMOUNT,
-            AddressLookup.getNEXTAddress(42161),
+            asset,
             AddressLookup.getConnextDao(1),
             ChainLookup.getDomainId(1),
             utils_getXCallData(5)
         );
         vm.stopPrank();
 
-        // // Process arbitrum xcall for `increaseLiquidity`
-        // vm.startPrank(caller);
-        // IXReceiver(AddressLookup.getConnextDao(42161)).xReceive(
-        //     bytes32("transfer"),
-        //     0,
-        //     AddressLookup.getNEXTAddress(42161),
-        //     AddressLookup.getConnextDao(1),
-        //     ChainLookup.getDomainId(1),
-        //     utils_getXCallData(6)
-        // );
-        // vm.stopPrank();
-
-        // Assert final balance changes
+        // Assert final balance of mainnet and arbitrum vaults
+        for (uint256 i; i < FORK_HELPER.utils_getNetworksCount(); i++) {
+            uint256 chainId = FORK_HELPER.NETWORK_IDS(i);
+            address vault = chainId == 1 ? ARRAKIS_MAINNET : ARRAKIS_ARBITRUM;
+            vm.selectFork(FORK_HELPER.forkIdsByChain(chainId));
+            uint256 balance = IERC20(AddressLookup.getNEXTAddress(chainId)).balanceOf(vault);
+            assertEq(balance, LIQUIDITY_AMOUNT, "!balance");
+        }
     }
 
     function test_logXCallData() public {
         bytes memory _calldata = utils_getEncodedXCallData();
-        console.log("calldata");
-        console.logBytes(_calldata);
-        assertTrue(_calldata.length > 0, "!calldata");
+        (address _to, uint256 _value, bytes memory _data, Operation _operation) = abi.decode(
+            _calldata,
+            (address, uint256, bytes, Operation)
+        );
+        assertEq(_to, MULTISEND, "!to");
+        assertEq(_value, 0, "!value");
+        assertEq(uint256(_operation), 1, "!operation");
+        assertTrue(_data.length > 0, "!_data");
+        // console.log("calldata");
+        // console.logBytes(_calldata);
     }
 }
