@@ -13,3 +13,6 @@
 [submodule "lib/safe-contracts"]
 	path = lib/safe-contracts
 	url = https://github.com/safe-global/safe-contracts
+[submodule "lib/v2-core"]
+	path = lib/v2-core
+	url = https://github.com/ArrakisFinance/v2-core
