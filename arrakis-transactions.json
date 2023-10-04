@@ -1,0 +1,202 @@
+{
+    "version": "1.0",
+    "chainId": "1",
+    "createdAt": 1696380235696,
+    "meta": {
+        "name": "Transactions Batch",
+        "description": "",
+        "txBuilderVersion": "1.16.3",
+        "createdFromSafeAddress": "0x4d50a469fc788a3c0CdC8Fd67868877dCb246625",
+        "createdFromOwnerAddress": "",
+        "checksum": "0x4f00d409578fdf7b06bbcb70df5b97daeb989191570a06680fe05d8fe9b4174d"
+    },
+    "transactions": [
+        {
+            "to": "0xFE67A4450907459c3e1FFf623aA927dD4e28c67a",
+            "value": "0",
+            "data": null,
+            "contractMethod": {
+                "inputs": [
+                    {
+                        "name": "spender",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    }
+                ],
+                "name": "approve",
+                "payable": false
+            },
+            "contractInputsValues": {
+                "spender": "0xB041f628e961598af9874BCf30CC865f67fad3EE",
+                "amount": "10000000000000000000000"
+            }
+        },
+        {
+            "to": "0xB041f628e961598af9874BCf30CC865f67fad3EE",
+            "value": "0",
+            "data": null,
+            "contractMethod": {
+                "inputs": [
+                    {
+                        "components": [
+                            {
+                                "internalType": "contract IArrakisV2",
+                                "name": "vault",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "amount0",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "amount1",
+                                "type": "uint256"
+                            }
+                        ],
+                        "internalType": "struct IncreaseBalance",
+                        "name": "increaseBalance_",
+                        "type": "tuple"
+                    }
+                ],
+                "name": "increaseLiquidity",
+                "payable": false
+            },
+            "contractInputsValues": {
+                "increaseBalance_": "[\"0x3395d368c76c5db0e6235c2d43b9b0393fe40080\",\"0\",\"10000000000000000000000\"]"
+            }
+        },
+        {
+            "to": "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6",
+            "value": "0",
+            "data": null,
+            "contractMethod": {
+                "inputs": [
+                    {
+                        "internalType": "uint32",
+                        "name": "_destination",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "_to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "_asset",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "_delegate",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "_amount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "_slippage",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "_callData",
+                        "type": "bytes"
+                    }
+                ],
+                "name": "xcall",
+                "outputs": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "",
+                        "type": "bytes32"
+                    }
+                ],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            "contractInputsValues": {
+                "_destination": "1634886255",
+                "_to": "0x49eDb1cBFf72BC40559D38EE96ae59463f4d3318",
+                "_asset": "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+                "_delegate": "0xC1167F7209A7434252e427Ad96693ccf6FB2755F",
+                "_amount": "10000000000000000000000",
+                "_slippage": "0",
+                "_callData": "0x00000000000000000000000058b9cb810a68a7f3e1e4f8cb45d1b9b3c79705e80000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044095ea7b3000000000000000000000000b041f628e961598af9874bcf30cc865f67fad3ee00000000000000000000000000000000000000000000021e19e0c9bab240000000000000000000000000000000000000000000000000000000000000"
+            }
+        },
+        {
+            "to": "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6",
+            "value": "0",
+            "data": null,
+            "contractMethod": {
+                "inputs": [
+                    {
+                        "internalType": "uint32",
+                        "name": "_destination",
+                        "type": "uint32"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "_to",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "_asset",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "_delegate",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "_amount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "_slippage",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "_callData",
+                        "type": "bytes"
+                    }
+                ],
+                "name": "xcall",
+                "outputs": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "",
+                        "type": "bytes32"
+                    }
+                ],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            "contractInputsValues": {
+                "_destination": "1634886255",
+                "_to": "0x49eDb1cBFf72BC40559D38EE96ae59463f4d3318",
+                "_asset": "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+                "_delegate": "0xC1167F7209A7434252e427Ad96693ccf6FB2755F",
+                "_amount": "0",
+                "_slippage": "0",
+                "_callData": "0x000000000000000000000000b041f628e961598af9874bcf30cc865f67fad3ee000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006434e5eea6000000000000000000000000e04ccc9004386a5f6fed6804a4d672afe1f4ee2900000000000000000000000000000000000000000000021e19e0c9bab2400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+            }
+        }
+    ]
+}

@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.17;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import {Strings} from "@openzeppelin/utils/Strings.sol";
 
@@ -16,9 +16,8 @@ import "forge-std/console.sol";
  */
 contract ForkHelper is ForgeHelper {
   // ============ Libraries ============
-//   using stdJson for string;
-//   using Strings for string;
-//   using Strings for uint256;
+  using Strings for string;
+  using Strings for uint256;
 
   // ============ Storage ============
 
@@ -37,15 +36,22 @@ contract ForkHelper is ForgeHelper {
         _networkIds = ChainLookup.getMainnetChainIds();
     }
     // Set all networks to fork
-    NETWORK_IDS = _networkIds;
+    for (uint256 i; i < _networkIds.length; i++) {
+      NETWORK_IDS.push(_networkIds[i]);
+    }
   }
 
+
   // ============ Utils ==================
+
+  function utils_getNetworksCount() public view returns (uint256 _len) {
+    _len = NETWORK_IDS.length;
+  }
 
   /**
    * @notice Create a fork for each network
    */
-  function utils_createForks() internal {
+  function utils_createForks() public {
     require(NETWORK_IDS.length > 0, "!networks");
     for (uint256 i; i < NETWORK_IDS.length; i++) {
       // create the fork
@@ -59,7 +65,7 @@ contract ForkHelper is ForgeHelper {
   /**
    * @notice Selects a fork given a chain
    */
-  function utils_selectFork(uint256 chain) internal returns (uint256 forkId) {
+  function utils_selectFork(uint256 chain) public returns (uint256 forkId) {
     // activate the fork
     forkId = forkIdsByChain[chain];
     vm.selectFork(forkId);
@@ -68,7 +74,7 @@ contract ForkHelper is ForgeHelper {
   /**
    * @notice Rolls fork to a given timestamp
    */
-  function utils_rollForkTo(uint256 timestamp) internal {
+  function utils_rollForkTo(uint256 timestamp) public {
     // get blocktime
     uint256 pre = block.timestamp;
     if (pre >= timestamp) {

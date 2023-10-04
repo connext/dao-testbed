@@ -48,6 +48,19 @@ library AddressLookup {
     require(false, "!connext for chain");
   }
 
+  function getNEXTAddress(uint256 _chainId) public pure returns (address) {
+    // Mainnets
+    if (_chainId == 1) {
+      return address(0xFE67A4450907459c3e1FFf623aA927dD4e28c67a);
+    }
+
+    if (_chainId == 10 || _chainId == 56 || _chainId == 100 ||_chainId == 137 ||_chainId == 42161) {
+      return address(0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8);
+    }
+
+    require(false, "!connext for chain");
+  }
+
   function getConnextDao(uint256 _chainId) public pure returns (address) {
     // Mainnets
     if (_chainId == 1) {
