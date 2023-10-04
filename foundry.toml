@@ -4,8 +4,10 @@
 remappings = [
     "@forge-std/=lib/forge-std/src/",
     "@openzeppelin/=lib/openzeppelin-contracts/contracts/",
-    "v2-palm/=v2-palm/contracts/"
+    "v2-palm/=lib/v2-palm/contracts/",
+    "safe-contracts/=lib/safe-contracts/contracts/"
 ]
+fs_permissions = [{ access = "read", path = "./"}]
 
 [profile.ci.fuzz]
 runs = 10_000

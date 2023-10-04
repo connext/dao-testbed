@@ -2,6 +2,9 @@
 pragma solidity ^0.8.0;
 
 import {Strings} from "@openzeppelin/utils/Strings.sol";
+import {Ownable} from "@openzeppelin/access/Ownable.sol";
+import {IERC20} from "@openzeppelin/token/ERC20/IERC20.sol";
+
 import {MultiSendCallOnly} from "safe-contracts/libraries/MultiSendCallOnly.sol";
 
 import {ForgeHelper} from "./utils/ForgeHelper.sol";
@@ -9,6 +12,7 @@ import {ForkHelper} from "./utils/ForkHelper.sol";
 import {AddressLookup} from "./utils/AddressLookup.sol";
 
 import "forge-std/StdJson.sol";
+import "forge-std/console.sol";
 
 // Addresses ----
 
@@ -28,6 +32,13 @@ contract ArrakisProposal is ForgeHelper {
      enum Operation {
         Call,
         DelegateCall
+    }
+
+    struct Transaction {
+        address to;
+        uint256 value;
+        bytes data;
+        Operation operation;
     }
 
     // ================== Libraries ==================
@@ -59,9 +70,12 @@ contract ArrakisProposal is ForgeHelper {
     // Number of transactions to execute in multisend data:
     // 1. mainnet approval of NEXT to terms
     // 2. mainnet increaseLiquidity on terms
-    // 3. arbitrum approval of NEXT to terms (via xcall)
-    // 4. arbitrum increaseLiquidity on terms (via xcall)
-    uint256 public NUMBER_TRANSACTIONS = 4;
+    // 3. mainnet approval of NEXT to vault
+    // 4. deposit NEXT into vault
+    // 5. mainnet approval of NEXT to connext
+    // 6. arbitrum approval of NEXT to terms (via xcall)
+    // 7. arbitrum increaseLiquidity on terms (via xcall)
+    uint256 public NUMBER_TRANSACTIONS = 7;
 
     // ================== Setup ==================
 
@@ -78,7 +92,8 @@ contract ArrakisProposal is ForgeHelper {
     }
 
     // ================== Utils ==================
-    function utils_generateMultisendTransactions() public returns (bytes memory _transactions) {
+    // TODO: should submit via multisend to simulate bundling of transactions
+    function utils_generateMultisendTransactions() public view returns (bytes memory _transactions) {
         // Generate executable from `arrakis-transactions.json`
         string memory path = string.concat(
             vm.projectRoot(),
@@ -92,13 +107,15 @@ contract ArrakisProposal is ForgeHelper {
             string memory baseJsonPath = string.concat(".transactions[", i.toString(), "]");
             address to = json.readAddress(string.concat(baseJsonPath, ".to"));
             uint256 value = json.readUint(string.concat(baseJsonPath, ".value"));
-            bytes memory data = json.readBytes(string.concat(baseJsonPath, ".data"));
+            // No way to check if data is null in json, this will revert if data is null
             // TODO: add support to automatically generate data if its null
-            require(data.length > 0, "!data");
+            bytes memory data = json.readBytes(string.concat(baseJsonPath, ".data"));
+
+            // Add to transactions
             _transactions = bytes.concat(
                 _transactions,
                 abi.encodePacked(
-                    uint8(1), // type: delegatecall
+                    uint8(0), // type: call
                     to, // to
                     value, // value
                     data.length, // data length
@@ -108,44 +125,59 @@ contract ArrakisProposal is ForgeHelper {
         }
     }
 
+    function utils_generateTransactions() public view returns (Transaction[] memory _transactions) {
+        // Generate executable from `arrakis-transactions.json`
+        string memory path = string.concat(
+            vm.projectRoot(),
+            TRANSACTIONS_PATH
+        );
+
+        string memory json = vm.readFile(path);
+
+        // Generate the bytes of the multisend transactions
+        _transactions = new Transaction[](NUMBER_TRANSACTIONS);
+        for (uint256 i; i < NUMBER_TRANSACTIONS; i++) {
+            string memory baseJsonPath = string.concat(".transactions[", i.toString(), "]");
+            address to = json.readAddress(string.concat(baseJsonPath, ".to"));
+            uint256 value = json.readUint(string.concat(baseJsonPath, ".value"));
+            // No way to check if data is null in json, this will revert if data is null
+            // TODO: add support to automatically generate data if its null
+            bytes memory data = json.readBytes(string.concat(baseJsonPath, ".data"));
+
+            // Add to transactions
+            _transactions[i] = Transaction({
+                to: to,
+                value: value,
+                data: data,
+                operation: Operation.Call
+            });
+        }
+    }
+
     // ================== Tests ==================
     function test_executableShouldPass() public {
         // Generate the multisend transactions
-        bytes memory transactions = utils_generateMultisendTransactions();
+        // bytes memory transactions = utils_generateMultisendTransactions();
+        Transaction[] memory transactions = utils_generateTransactions();
 
-        // Submit the multisend call
-        vm.prank(AddressLookup.getConnextDao(1));
-        MultiSendCallOnly(MULTISEND).multiSend(transactions);
+        // Select and prep fork
+        vm.selectFork(FORK_HELPER.forkIdsByChain(1));
+        address caller = AddressLookup.getConnextDao(1);
+        vm.makePersistent(caller);
 
-        // // Generate the signatures
+        // Submit the transactions
+        // NOTE: This assumes signatures will be valid, and the batching of these transactions
+        // will be valid. Simply pranks and calls each function in a loop as DAO.
+        for (uint256 i; i < transactions.length; i++) {
+            // Send tx
+            vm.prank(caller);
+            (bool success,) = transactions[i].to.call{value: transactions[i].value}(transactions[i].data);
+            assertTrue(success, string.concat("!success @ ", i.toString()));
+        }
 
-        // // Generate the payload to `execTransaction`
-        // address to = MULTISEND;
-        // uint256 value = 0;
-        // bytes memory data = abi.encodeWithSignature(
-        //     "multiSend(bytes)",
-        //     transactions
-        // );
-        // Operation operation = Operation.Call;
-        // uint256 safeTxGas = 300 wei;
-        // uint256 baseGas = 300 wei;
-        // uint256 gasPrice = 300 wei;
-        // address gasToken = address(0);
-        // address payable refundReceiver = payable(address(this));
-        // bytes memory signatures;
+        // Process arbitrum xcall for `approval`
 
-
-        // executable should:
-        // - approve vault to spend NEXT
-        // - call `increaseLiquidity` on vault
-        // - create an xcall to arbitrum that will transfer + approve NEXT to arbitrum
-        // - create an xcall to arbitrum that will call `increaseLiquidity` on vault
-
-        // These two should be executed via `execTransaction` on mainnet multisig
-
-        // Process arbitrum message for approval
-
-        // Process arbitrum message for `increaseLiquidity`
+        // Process arbitrum xcall for `increaseLiquidity`
 
         // Assert final balance changes
     }
