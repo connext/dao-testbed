@@ -1,9 +1,6 @@
 [submodule "lib/interfaces"]
 	path = lib/interfaces
 	url = https://github.com/connext/interfaces
-[submodule "lib/v2-palm"]
-	path = lib/v2-palm
-	url = https://github.com/ArrakisFinance/v2-palm
 [submodule "lib/openzeppelin-contracts"]
 	path = lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
@@ -13,6 +10,3 @@
 [submodule "lib/safe-contracts"]
 	path = lib/safe-contracts
 	url = https://github.com/safe-global/safe-contracts
-[submodule "lib/v2-core"]
-	path = lib/v2-core
-	url = https://github.com/ArrakisFinance/v2-core
