@@ -5,11 +5,16 @@ import {Strings} from "@openzeppelin/utils/Strings.sol";
 import {Ownable} from "@openzeppelin/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/token/ERC20/IERC20.sol";
 
+import {IPALMTerms} from "v2-palm/interfaces/IPALMTerms.sol";
+
 import {MultiSendCallOnly} from "safe-contracts/libraries/MultiSendCallOnly.sol";
+
+import {IXReceiver} from "@connext/interfaces/core/IXReceiver.sol";
 
 import {ForgeHelper} from "./utils/ForgeHelper.sol";
 import {ForkHelper} from "./utils/ForkHelper.sol";
 import {AddressLookup} from "./utils/AddressLookup.sol";
+import {ChainLookup} from "./utils/ChainLookup.sol";
 
 import "forge-std/StdJson.sol";
 import "forge-std/console.sol";
@@ -70,12 +75,15 @@ contract ArrakisProposal is ForgeHelper {
     // Number of transactions to execute in multisend data:
     // 1. mainnet approval of NEXT to terms
     // 2. mainnet increaseLiquidity on terms
-    // 3. mainnet approval of NEXT to vault
-    // 4. deposit NEXT into vault
+    // 3. mainnet approval of NEXT to lockbox
+    // 4. deposit NEXT into lockbox
     // 5. mainnet approval of NEXT to connext
-    // 6. arbitrum approval of NEXT to terms (via xcall)
-    // 7. arbitrum increaseLiquidity on terms (via xcall)
+    // 6. an xcall with multicall calldata that will:
+    //    - arbitrum approval of NEXT to terms (module approves)
+    //    - arbitrum increaseLiquidity on terms (module is caller)
     uint256 public NUMBER_TRANSACTIONS = 7;
+
+    uint256 public LIQUIDITY_AMOUNT = 10000 ether; // used in transactions
 
     // ================== Setup ==================
 
@@ -85,6 +93,7 @@ contract ArrakisProposal is ForgeHelper {
         chains[0] = 1;
         chains[1] = 42161;
         FORK_HELPER = new ForkHelper(chains);
+        vm.makePersistent(address(FORK_HELPER));
 
         // Create the forks
         FORK_HELPER.utils_createForks();
@@ -154,13 +163,100 @@ contract ArrakisProposal is ForgeHelper {
         }
     }
 
+    function utils_getXCallData(uint256 transactionIdx) public view returns (bytes memory _calldata) {
+        // Generate executable from `arrakis-transactions.json`
+        string memory path = string.concat(
+            vm.projectRoot(),
+            TRANSACTIONS_PATH
+        );
+
+        string memory json = vm.readFile(path);
+        string memory jsonPath = string.concat(".transactions[", transactionIdx.toString(), "].contractInputsValues._callData");
+        _calldata = json.readBytes(jsonPath);
+    }
+
+    function utils_getXCallTo(uint256 transactionIdx) public view returns (address _to) {
+        // Generate executable from `arrakis-transactions.json`
+        string memory path = string.concat(
+            vm.projectRoot(),
+            TRANSACTIONS_PATH
+        );
+
+        string memory json = vm.readFile(path);
+        string memory jsonPath = string.concat(".transactions[", transactionIdx.toString(), "].contractInputsValues._to");
+        _to = json.readAddress(jsonPath);
+    }
+
+    function utils_getEncodedXCallData() public returns (bytes memory _calldata) {
+        // Get multisend transactions
+        Transaction[] memory transactions = new Transaction[](2);
+
+        // 1. approve NEXT to terms
+        transactions[0] = Transaction({
+            to: AddressLookup.getNEXTAddress(42161),
+            value: 0,
+            data: abi.encodeWithSelector(
+                IERC20.approve.selector,
+                ARRAKIS_PALM_TERMS,
+                LIQUIDITY_AMOUNT
+            ),
+            operation: Operation.Call
+        });
+
+        // 2. increaseLiquidity on terms
+        transactions[1] = Transaction({
+            to: ARRAKIS_PALM_TERMS,
+            value: 0,
+            data: abi.encodeWithSelector(
+                IPALMTerms.increaseLiquidity.selector,
+                IPALMTerms.IncreaseBalance(ARRAKIS_ARBITRUM, LIQUIDITY_AMOUNT, 0)
+            ),
+            operation: Operation.Call
+        });
+
+        // encode multisend transactions into expected format
+        bytes memory _transactions;
+        for (uint256 i; i < transactions.length; i++) {
+            _transactions = bytes.concat(
+                _transactions,
+                abi.encodePacked(
+                    transactions[i].operation,
+                    transactions[i].to,
+                    transactions[i].value,
+                    transactions[i].data.length,
+                    transactions[i].data
+                )
+            );
+        }
+
+        // Get the multisend transaction to be executed on xcall
+        Transaction memory multisend = Transaction({
+            to: MULTISEND,
+            value: 0,
+            data: abi.encodeWithSelector(
+                MultiSendCallOnly.multiSend.selector,
+                _transactions
+            ),
+            operation: Operation.Call
+        });
+
+        // return this as the encodePacked calldata
+        _calldata = abi.encodePacked(
+            multisend.operation,
+            multisend.to,
+            multisend.value,
+            multisend.data.length,
+            multisend.data
+        );
+    }
+
     // ================== Tests ==================
     function test_executableShouldPass() public {
         // Generate the multisend transactions
         // bytes memory transactions = utils_generateMultisendTransactions();
         Transaction[] memory transactions = utils_generateTransactions();
 
-        // Select and prep fork
+        // Select and prep mainnet fork
         vm.selectFork(FORK_HELPER.forkIdsByChain(1));
         address caller = AddressLookup.getConnextDao(1);
         vm.makePersistent(caller);
@@ -175,10 +271,62 @@ contract ArrakisProposal is ForgeHelper {
             assertTrue(success, string.concat("!success @ ", i.toString()));
         }
 
-        // Process arbitrum xcall for `approval`
+        // Select and prep arbitrum fork
+        vm.selectFork(FORK_HELPER.forkIdsByChain(42161));
+        caller = AddressLookup.getConnext(42161);
+        vm.makePersistent(caller);
 
-        // Process arbitrum xcall for `increaseLiquidity`
+        (address _to, uint256 _value, bytes memory _data, Operation _operation) = abi.decode(
+            utils_getXCallData(5),
+            (address, uint256, bytes, Operation)
+        );
+        console.log("receiver", utils_getXCallTo(5));
+        console.log("to", _to);
+        console.log("value", _value);
+        console.log("operation", uint256(_operation));
+        console.log("data");
+        console.logBytes(_data);
+
+        console.log("calldata");
+        console.logBytes(abi.encodeWithSelector(IXReceiver.xReceive.selector, bytes32("transfer"),
+            LIQUIDITY_AMOUNT,
+            AddressLookup.getNEXTAddress(42161),
+            AddressLookup.getConnextDao(1),
+            ChainLookup.getDomainId(1),
+            utils_getXCallData(5))
+        );
+
+        // Process arbitrum xcall for `approval`
+        vm.startPrank(address(0xEE9deC2712cCE65174B561151701Bf54b99C24C8));
+        IXReceiver(utils_getXCallTo(5)).xReceive(
+            bytes32("transfer"),
+            LIQUIDITY_AMOUNT,
+            AddressLookup.getNEXTAddress(42161),
+            AddressLookup.getConnextDao(1),
+            ChainLookup.getDomainId(1),
+            utils_getXCallData(5)
+        );
+        vm.stopPrank();
+
+        // // Process arbitrum xcall for `increaseLiquidity`
+        // vm.startPrank(caller);
+        // IXReceiver(AddressLookup.getConnextDao(42161)).xReceive(
+        //     bytes32("transfer"),
+        //     0,
+        //     AddressLookup.getNEXTAddress(42161),
+        //     AddressLookup.getConnextDao(1),
+        //     ChainLookup.getDomainId(1),
+        //     utils_getXCallData(6)
+        // );
+        // vm.stopPrank();
 
         // Assert final balance changes
+    }
+
+    function test_logXCallData() public {
+        bytes memory _calldata = utils_getEncodedXCallData();
+        console.log("calldata");
+        console.logBytes(_calldata);
+        assertTrue(_calldata.length > 0, "!calldata");
     }
 }
