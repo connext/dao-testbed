@@ -28,7 +28,7 @@ import "forge-std/console.sol";
 
 // --------
 
-contract ValindromeProposal is ForgeHelper {
+contract VelodromeProposal is ForgeHelper {
     enum Operation {
         Call,
         DelegateCall
@@ -56,7 +56,7 @@ contract ValindromeProposal is ForgeHelper {
     ForkHelper public FORK_HELPER;
 
     // Transactions path
-    string public TRANSACTIONS_PATH = "/valindrome-transactions.json";
+    string public TRANSACTIONS_PATH = "/Velodrome-transactions.json";
 
     // Number of transactions to execute in multisend data:
     // 1. mainnet approval of NEXT to lockbox
@@ -89,7 +89,7 @@ contract ValindromeProposal is ForgeHelper {
         view
         returns (Transaction[] memory _transactions)
     {
-        // Generate executable from `valindrome-transactions.json`
+        // Generate executable from `Velodrome-transactions.json`
         string memory path = string.concat(vm.projectRoot(), TRANSACTIONS_PATH);
 
         string memory json = vm.readFile(path);
@@ -125,7 +125,7 @@ contract ValindromeProposal is ForgeHelper {
     function utils_getXCallTo(
         uint256 transactionIdx
     ) public view returns (address _to) {
-        // Generate executable from `valindrome-transactions.json`
+        // Generate executable from `Velodrome-transactions.json`
         string memory path = string.concat(vm.projectRoot(), TRANSACTIONS_PATH);
 
         string memory json = vm.readFile(path);
