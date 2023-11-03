@@ -96,7 +96,12 @@ contract ArrakisProposal is ForgeHelper {
         uint256[] memory chains = new uint256[](2);
         chains[0] = 1;
         chains[1] = 42161;
-        FORK_HELPER = new ForkHelper(chains);
+
+        uint256[] memory blocks = new uint256[](2);
+        blocks[0] = 18375992;
+        blocks[1] = 141001263;
+
+        FORK_HELPER = new ForkHelper(chains, blocks);
         vm.makePersistent(address(FORK_HELPER));
 
         // Create the forks
