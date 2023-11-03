@@ -24,20 +24,21 @@ contract ForkHelper is ForgeHelper {
   // All chain ids to fork
   uint256[] public NETWORK_IDS;
 
+  // All blocks to fork from
+  uint256[] public FORK_BLOCKS;
+
   // Chainid and fork lookups (provide reverse lookup so you can
   // find fork given id or chain)
   mapping(uint256 => uint256) public forkIdsByChain;
   mapping(uint256 => uint256) public chainsByForkId;
 
   // ============ Constructor ============
-  constructor(uint256[] memory _networkIds) {
-    if (_networkIds.length == 0) {
-        // Default to forking all mainnet chains
-        _networkIds = ChainLookup.getMainnetChainIds();
-    }
+  constructor(uint256[] memory _networkIds, uint256[] memory _forkBlocks) {
+    require(_networkIds.length == _forkBlocks.length, "!length");
     // Set all networks to fork
     for (uint256 i; i < _networkIds.length; i++) {
       NETWORK_IDS.push(_networkIds[i]);
+      FORK_BLOCKS.push(_forkBlocks[i]);
     }
   }
 
@@ -55,7 +56,7 @@ contract ForkHelper is ForgeHelper {
     require(NETWORK_IDS.length > 0, "!networks");
     for (uint256 i; i < NETWORK_IDS.length; i++) {
       // create the fork
-      uint256 forkId = vm.createSelectFork(vm.envString(ChainLookup.getRpcEnvName(NETWORK_IDS[i])));
+      uint256 forkId = vm.createSelectFork(vm.envString(ChainLookup.getRpcEnvName(NETWORK_IDS[i])), FORK_BLOCKS[i]);
       // update the mappings
       forkIdsByChain[block.chainid] = forkId;
       chainsByForkId[forkId] = block.chainid;
