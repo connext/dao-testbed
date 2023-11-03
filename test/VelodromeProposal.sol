@@ -9,7 +9,6 @@ import {MultiSendCallOnly} from "safe-contracts/libraries/MultiSendCallOnly.sol"
 
 import {IXReceiver} from "@connext/interfaces/core/IXReceiver.sol";
 
-import {IPALMTerms} from "./interfaces/IPALMTerms.sol";
 import {IXERC20} from "./interfaces/IXERC20.sol";
 
 import {ForgeHelper} from "./utils/ForgeHelper.sol";
