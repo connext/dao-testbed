@@ -154,13 +154,10 @@ contract VelodromeProposal is ForgeHelper {
         // Submit the transactions
         // NOTE: This assumes signatures will be valid, and the batching of these transactions
         // will be valid. Simply pranks and calls each function in a loop as DAO.
-        vm.deal(caller, 1 ether);
         for (uint256 i; i < transactions.length; i++) {
             // Send tx
             vm.prank(caller);
-            (bool success, ) = transactions[i].to.call{
-                value: transactions[i].value
-            }(transactions[i].data);
+            (bool success, ) = transactions[i].to.call(transactions[i].data);
             assertTrue(success, string.concat("!success @ ", i.toString()));
         }
 
@@ -175,7 +172,6 @@ contract VelodromeProposal is ForgeHelper {
         vm.startPrank(caller);
         // Mint on NEXT to caller
         IXERC20(asset).mint(to, LIQUIDITY_AMOUNT_OPTIMISM);
-
         vm.stopPrank();
 
         uint256 balance = IERC20(AddressLookup.getNEXTAddress(10)).balanceOf(
