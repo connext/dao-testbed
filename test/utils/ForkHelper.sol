@@ -56,7 +56,12 @@ contract ForkHelper is ForgeHelper {
     require(NETWORK_IDS.length > 0, "!networks");
     for (uint256 i; i < NETWORK_IDS.length; i++) {
       // create the fork
-      uint256 forkId = vm.createSelectFork(vm.envString(ChainLookup.getRpcEnvName(NETWORK_IDS[i])), FORK_BLOCKS[i]);
+      uint256 forkId;
+      if (FORK_BLOCKS[i] == 0) {
+        forkId = vm.createSelectFork(vm.envString(ChainLookup.getRpcEnvName(NETWORK_IDS[i])));
+      } else {
+        forkId = vm.createSelectFork(vm.envString(ChainLookup.getRpcEnvName(NETWORK_IDS[i])), FORK_BLOCKS[i]);
+      }
       // update the mappings
       forkIdsByChain[block.chainid] = forkId;
       chainsByForkId[forkId] = block.chainid;

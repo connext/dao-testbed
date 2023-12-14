@@ -1,0 +1,93 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1698843459112,
+  "meta": {
+    "name": "Transactions Batch",
+    "description": "",
+    "txBuilderVersion": "1.16.3",
+    "createdFromSafeAddress": "0xf2964cCcB7CDA9e808aaBe8DB0DDDAF7890dd378",
+    "createdFromOwnerAddress": "",
+    "checksum": "0xdbc08311d3e010b14c94e185b27ff37d6413e31bf0677df5803dbad54fa3128a"
+  },
+  "transactions": [
+    {
+      "to": "0xFE67A4450907459c3e1FFf623aA927dD4e28c67a",
+      "value": "0",
+      "data": "0x095ea7b300000000000000000000000022f424bca11fe154c403c277b5f8dab54a4ba29b000000000000000000000000000000000000000000013da329b6336471800000",
+      "contractMethod": {
+        "inputs": [
+          { "name": "spender", "type": "address", "internalType": "address" },
+          { "name": "amount", "type": "uint256", "internalType": "uint256" }
+        ],
+        "name": "approve",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "spender": "0x22f424Bca11FE154c403c277b5F8dAb54a4bA29b",
+        "amount": "1500000000000000000000000"
+      }
+    },
+    {
+      "to": "0x22f424Bca11FE154c403c277b5F8dAb54a4bA29b",
+      "value": "0",
+      "data": "0xb6b55f25000000000000000000000000000000000000000000013da329b6336471800000",
+      "contractMethod": {
+        "inputs": [
+          { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+        ],
+        "name": "deposit",
+        "payable": false
+      },
+      "contractInputsValues": { "_amount": "1500000000000000000000000" }
+    },
+    {
+      "to": "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+      "value": "0",
+      "data": "0x095ea7b30000000000000000000000008898b472c54c31894e3b9bb83cea802a5d0e63c6000000000000000000000000000000000000000000013da329b6336471800000",
+      "contractMethod": {
+        "inputs": [
+          { "internalType": "address", "name": "spender", "type": "address" },
+          { "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "approve",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "spender": "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6",
+        "amount": "1500000000000000000000000"
+      }
+    },
+    {
+      "to": "0x8898B472C54c31894e3B9bb83cEA802a5d0e63C6",
+      "value": "0",
+      "data": "0x8aac16ba000000000000000000000000000000000000000000000000000000006f7074690000000000000000000000001a3c9dc0c3fb2d9bc435e28479b3d9b3e334334700000000000000000000000058b9cb810a68a7f3e1e4f8cb45d1b9b3c79705e80000000000000000000000001a3c9dc0c3fb2d9bc435e28479b3d9b3e3343347000000000000000000000000000000000000000000013da329b6336471800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000000f0000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "uint32",
+            "name": "_destination",
+            "type": "uint32"
+          },
+          { "internalType": "address", "name": "_to", "type": "address" },
+          { "internalType": "address", "name": "_asset", "type": "address" },
+          { "internalType": "address", "name": "_delegate", "type": "address" },
+          { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+          { "internalType": "uint256", "name": "_slippage", "type": "uint256" },
+          { "internalType": "bytes", "name": "_callData", "type": "bytes" }
+        ],
+        "name": "xcall",
+        "payable": true
+      },
+      "contractInputsValues": {
+        "_destination": "1869640809",
+        "_to": "0x1a3C9dC0c3fb2D9bC435e28479b3d9b3e3343347",
+        "_asset": "0x58b9cB810A68a7f3e1E4f8Cb45D1B9B3c79705E8",
+        "_delegate": "0x1a3C9dC0c3fb2D9bC435e28479b3d9b3e3343347",
+        "_amount": "1500000000000000000000000",
+        "_slippage": "0",
+        "_callData": "0x"
+      }
+    }
+  ]
+}
