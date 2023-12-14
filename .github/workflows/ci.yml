@@ -23,7 +23,7 @@ jobs:
         run: forge install
 
       - name: Check gas snapshots
-        run: forge snapshot --check
+        run: export MAINNET_RPC_URL=https://eth.llamarpc.com && forge snapshot --check
 
       - name: Run tests
-        run: forge test
+        run: export MAINNET_RPC_URL=https://eth.llamarpc.com && forge test
