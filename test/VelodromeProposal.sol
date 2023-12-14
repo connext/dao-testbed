@@ -172,6 +172,9 @@ contract VelodromeProposal is ForgeHelper {
         address to = utils_getXCallTo(3);
         address asset = AddressLookup.getNEXTAddress(10);
         vm.startPrank(caller);
+        uint256 initialbalance = IERC20(AddressLookup.getNEXTAddress(10))
+            .balanceOf(to);
+
         // Mint on NEXT to caller
         IXERC20(asset).mint(to, LIQUIDITY_AMOUNT_OPTIMISM);
         // No calldata on the xcall
@@ -181,13 +184,19 @@ contract VelodromeProposal is ForgeHelper {
         uint256 balance = IERC20(AddressLookup.getNEXTAddress(10)).balanceOf(
             to
         );
-        assertEq(balance, LIQUIDITY_AMOUNT_OPTIMISM, "!balance");
+        assertEq(
+            balance,
+            LIQUIDITY_AMOUNT_OPTIMISM + initialbalance,
+            "!balance"
+        );
 
         // Ensure the connext mainnet balance decreased
         vm.selectFork(FORK_HELPER.forkIdsByChain(1));
         assertEq(
-            IERC20(AddressLookup.getNEXTAddress(1)).balanceOf(AddressLookup.getConnextDao(1)), 
-            initial - LIQUIDITY_AMOUNT_OPTIMISM, 
+            IERC20(AddressLookup.getNEXTAddress(1)).balanceOf(
+                AddressLookup.getConnextDao(1)
+            ),
+            initial - LIQUIDITY_AMOUNT_OPTIMISM,
             "!balance"
         );
     }
