@@ -101,6 +101,27 @@ contract ContractTest is Test {
 }
 ```
 
+### Running the test
+
+- Ensure that Foundry is installed in your system. 
+- Create a `.env` file in the root of the repository and copy the content of `.env.example` in it. Make sure to add RPCs of the networks you are going cross-chain 
+
+    ```
+    MAINNET_RPC_URL=
+    OPTIMISM_RPC_URL=
+    BNB_RPC_URL=
+    GNOSIS_RPC_URL=
+    POLYGON_RPC_URL=
+    ARBITRUM_ONE_RPC_URL=
+    ```
+
+- Run forge test to run all the tests. In case you only need one test to run. Use `--match-contract` flag. Ex. below for VelodromeProposal:
+
+    ```sh
+    forge test --match-contract VelodromeProposal
+    ```
+
+
 ### Development
 
 This project uses [Foundry](https://getfoundry.sh). See the [book](https://book.getfoundry.sh/getting-started/installation.html) for instructions on how to install and use Foundry.
