@@ -16,7 +16,7 @@ Our initial step involves determining the method to generate transactions.json f
 
 
 ### **_Generate your Executable._**
-To facilitate a transaction transferring NEXT from Ethereum to Optimism, use the SAFE Transaction Builder application and follow these steps:
+To facilitate a transaction transferring NEXT from Ethereum to Optimism, use the [SAFE Transaction Builder](https://app.safe.global/apps/open?safe=eth:0xf2964cCcB7CDA9e808aaBe8DB0DDDAF7890dd378&appUrl=https://apps-portal.safe.global/tx-builder) application and follow these steps:
 
     Lockbox Address Approval: Enter and approve the specific Lockbox address.
     Deposit Method: Use the Deposit method on the lockbox to obtain xNEXT tokens.
