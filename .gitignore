@@ -132,3 +132,6 @@ dist
 # foundry
 cache/
 out/
+
+# Mac
+.DS_Store
