@@ -6,7 +6,7 @@ export OPTIMISM_RPC_URL="https://optimism.llamarpc.com"
 export BNB_RPC_URL="https://binance.llamarpc.com"
 export GNOSIS_RPC_URL="https://gnosis-pokt.nodies.app"
 export POLYGON_RPC_URL="https://polygon.llamarpc.com"
-export ARBITRUM_ONE_RPC_URL="https://arbitrum.llamarpc.com"
+export ARBITRUM_ONE_RPC_URL="https://arbitrum-mainnet.infura.io/v3/9b9c643597604fc295303898feb5d728"
 
 
 # Check gas snapshots
