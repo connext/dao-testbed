@@ -77,6 +77,8 @@ contract CommunityProposal2 is ForgeHelper {
         chains[1] = 42161;
 
         uint256[] memory blocks = new uint256[](2);
+        blocks[0] = 19242800;
+        blocks[1] = 181495600;
 
         FORK_HELPER = new ForkHelper(chains, blocks);
         vm.makePersistent(address(FORK_HELPER));
