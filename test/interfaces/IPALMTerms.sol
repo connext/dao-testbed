@@ -18,4 +18,6 @@ interface IPALMTerms {
 
     function increaseLiquidity(IncreaseBalance calldata increaseBalance_)
         external;
+
+    function closeTerm(address vault_, address to_, address newOwner_, address newManager_) external;
 }
